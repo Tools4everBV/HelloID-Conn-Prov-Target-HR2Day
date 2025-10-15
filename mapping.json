@@ -1,0 +1,40 @@
+{
+  "Version": "v1",
+  "MappingFields": [
+    {
+      "Name": "ExternalId",
+      "Description": "for correlation",
+      "Type": "Text",
+      "MappingActions": [
+        {
+          "MapForActions": [
+            "Create",
+            "Update"
+          ],
+          "MappingMode": "Field",
+          "Value": "\"Person.ExternalId\"",
+          "UsedInNotifications": false,
+          "StoreInAccountData": false
+        }
+      ]
+    },
+    {
+      "Name": "Mail",
+      "Description": "",
+      "Type": "Text",
+      "MappingActions": [
+        {
+          "MapForActions": [
+            "Create",
+            "Update"
+          ],
+          "MappingMode": "Complex",
+          "Value": "\"function getEmail() {\\r\\n    if (typeof Person.Accounts.microsoftactivedirectory.mail !== 'undefined' && Person.Accounts.microsoftactivedirectory.mail) {\\r\\n        mail = Person.Accounts.microsoftactivedirectory.mail;\\r\\n    }\\r\\n    return mail;\\r\\n}\\r\\n\\r\\ngetEmail()\"",
+          "UsedInNotifications": false,
+          "StoreInAccountData": false
+        }
+      ]
+    }
+  ],
+  "UniqueFieldNames": []
+}

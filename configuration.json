@@ -1,0 +1,54 @@
+[
+  {
+    "defaultValue": "",
+    "key": "ClientID",
+    "templateOptions": {
+      "description": "The ClientID to connect to the API ",
+      "label": "ClientID",
+      "required": true
+    },
+    "type": "input"
+  },
+  {
+    "defaultValue": "",
+    "key": "ClientSecret",
+    "templateOptions": {
+      "description": "The ClientSecret to connect to the API ",
+      "label": "ClientSecret",
+      "required": true,
+      "type": "password"
+    },
+    "type": "input"
+  },
+  {
+    "defaultValue": "",
+    "key": "UserName",
+    "templateOptions": {
+      "description": "The UserName to connect to the API ",
+      "label": "UserName",
+      "required": true
+    },
+    "type": "input"
+  },
+  {
+    "defaultValue": "",
+    "key": "Password",
+    "templateOptions": {
+      "description": "The password belonging to the UserName",
+      "label": "Password",
+      "required": true,
+      "type": "password"
+    },
+    "type": "input"
+  },
+  {
+    "defaultValue": "customerhello",
+    "key": "requesterId",
+    "templateOptions": {
+      "description": "The name of the 'requester' used in updating the users.",
+      "label": "requesterId",
+      "required": true
+    },
+    "type": "input"
+  }
+]
