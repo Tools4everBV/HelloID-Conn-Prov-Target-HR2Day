@@ -93,14 +93,15 @@ try {
 
     #Write-Verbose "Invoking command '$($MyInvocation.MyCommand)'"
     Write-Verbose 'Retrieving HR2Day AccessToken'
-    $form = @{
-        grant_type    = 'password'
-        username      = $actionContext.Configuration.UserName
-        client_id     = $actionContext.Configuration.ClientID
-        client_secret = $actionContext.Configuration.ClientSecret
-        password      = $actionContext.Configuration.Password
-    }
-    $accessToken = Invoke-RestMethod -Uri 'https://login.salesforce.com/services/oauth2/token' -Method Post -Form $form
+$splatParams = @{
+            grant_type    = 'client_credentials' 
+            username      = $actionContext.Configuration.UserName
+            client_id     = $actionContext.Configuration.ClientID
+            client_secret = $actionContext.Configuration.ClientSecret
+            
+        }
+    
+    $accessToken = Invoke-RestMethod -Uri "$($actionContext.Configuration.BaseUrl)/services/oauth2/token" -Method Post -Body $splatParams
 
     Write-Verbose 'Adding Authorization headers'
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"

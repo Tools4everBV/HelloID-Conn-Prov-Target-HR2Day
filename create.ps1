@@ -89,14 +89,15 @@ try {
 
         # Determine if a user needs to be [created] or [correlated]
         Write-Verbose 'Retrieving HR2Day AccessToken'
-        $form = @{
-            grant_type    = 'password'
+        $splatParams = @{
+            grant_type    = 'client_credentials' 
             username      = $actionContext.Configuration.UserName
             client_id     = $actionContext.Configuration.ClientID
             client_secret = $actionContext.Configuration.ClientSecret
-            password      = $actionContext.Configuration.Password
+            
         }
-        $accessToken = Invoke-RestMethod -Uri 'https://login.salesforce.com/services/oauth2/token' -Method Post -Form $form
+        
+         $accessToken = Invoke-RestMethod -Uri "$($actionContext.Configuration.BaseUrl)/services/oauth2/token" -Method Post -Body $splatParams
 
         Write-Verbose 'Adding Authorization headers'
         $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
@@ -105,15 +106,10 @@ try {
 
         $splatParams['InstanceUrl'] = "$($accessToken.instance_url)"
 
-        Write-Verbose 'Retrieving HR2Day Employees'
-        #$splatParams['Endpoint']="employee?wg=$($actionContext.Configuration.WG_Employees)"
+        Write-Verbose 'Retrieving HR2Day Employee'
         $splatParams['Endpoint']="employee?$correlationField=$($correlationValue)"
-
         $correlatedAccount = Invoke-HR2DayRestMethod @splatParams
-
         $correlatedAccount = $correlatedAccount | Select-Object -First 1
-
-        #Write-Warning ($correlatedAccount | ConvertTo-Json)
         
         if ($null -ne $correlatedAccount){
              $action = 'CorrelateAccount'
