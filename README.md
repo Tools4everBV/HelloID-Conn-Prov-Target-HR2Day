@@ -7,7 +7,7 @@
 <br />
 
 <p align="center">
-  <img src="https://www.hr2day.com/wp-content/uploads/2019/10/cropped-RGB_hr2day_logo.png](https://github.com/Tools4everBV/HelloID-Conn-Prov-Source-HR2Day/blob/main/Logo.png">
+  <img src="https://github.com/Tools4everBV/HelloID-Conn-Prov-Source-HR2Day/blob/main/Logo.png">
 </p>
 
 ## Table of contents
