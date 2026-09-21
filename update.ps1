@@ -7,6 +7,7 @@
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
 #region functions
+
 function Invoke-HR2DayRestMethod {
     [CmdletBinding()]
     param (
@@ -47,7 +48,8 @@ function Invoke-HR2DayRestMethod {
 
             if($Body -ne $null){
                 $splatRestMethodParameters['Body'] = $Body
-            }
+            } 
+            
 
             Invoke-RestMethod @splatRestMethodParameters
         } catch {
@@ -86,34 +88,35 @@ function Resolve-HR2Day-Update-EmailError {
 #endregion
 
 try {
-    # Verify if [aRef] has a value
+     #Verify if [aRef] has a value
     if ([string]::IsNullOrEmpty($($actionContext.References.Account))) {
         throw 'The account reference could not be found'
     }   
 
     Write-Verbose 'Retrieving HR2Day AccessToken'
-    $form = @{
-        grant_type    = 'password'
-        username      = $actionContext.Configuration.UserName
-        client_id     = $actionContext.Configuration.ClientID
-        client_secret = $actionContext.Configuration.ClientSecret
-        password      = $actionContext.Configuration.Password
-    }
-    $accessToken = Invoke-RestMethod -Uri 'https://login.salesforce.com/services/oauth2/token' -Method Post -Form $form
+ 
+    $splatParams = @{
+            grant_type    = 'client_credentials' 
+            username      = $actionContext.Configuration.UserName
+            client_id     = $actionContext.Configuration.ClientID
+            client_secret = $actionContext.Configuration.ClientSecret
+        }
+        
+         $accessToken = Invoke-RestMethod -Uri "$($actionContext.Configuration.BaseUrl)/services/oauth2/token" -Method Post -Body $splatParams
 
-    Write-Verbose 'Adding Authorization headers'
-    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-    $headers.Add("Authorization", "Bearer $($accessToken.access_token)")
-    $splatParams = @{ Headers = $headers }
+        Write-Verbose 'Adding Authorization headers'
+        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+        $headers.Add("Authorization", "Bearer $($accessToken.access_token)")
+        $splatParams = @{ Headers = $headers }
 
-    $splatParams['InstanceUrl'] = "$($accessToken.instance_url)"
+        $splatParams['InstanceUrl'] = "$($accessToken.instance_url)"
 
-    Write-Verbose 'Retrieving HR2Day Employee'
-    $splatParams['Endpoint']="employee?ids=$($actionContext.References.Account)"
+        Write-Verbose 'Retrieving HR2Day Employee'
+        $splatParams['Endpoint']="employee?ids=$($actionContext.References.Account)"
+       
+        $correlatedAccount = Invoke-HR2DayRestMethod @splatParams
 
-    $correlatedAccount = Invoke-HR2DayRestMethod @splatParams
-
-    $correlatedAccount = $correlatedAccount | Select-Object -First 1
+        $correlatedAccount = $correlatedAccount | Select-Object -First 1
     
     $outputContext.PreviousData.employee = $correlatedAccount
 
@@ -135,18 +138,20 @@ try {
             Write-Information "Account property(s) required to update: hr2d__EmailWork__c)"
             
             #create body for put request
-            $body = @{
+                   $body = @{
                 request = @{
-                    requesterId = $actionContext.Configuration.RequesterId
+                 requesterId = $actionContext.Configuration.RequesterId
                     employees = @(
-                        @{
-                            errors = ''
-                            employeeid = $($actionContext.References.Account)
-                            employee = $actionContext.Data.employee
+                     @{
+                        errors = ""
+                        employeeId = $actionContext.References.Account
+                        employee = @{
+                        hr2d__EmailWork__c = $actionContext.Data.employee.hr2d__EmailWork__c
                         }
-                    )
-                }
-            }
+                    }
+                                )
+                            }
+                    }
             
             if (-not($actionContext.DryRun -eq $true)) {
                 $splatParamsUpdate = @{
@@ -156,7 +161,10 @@ try {
                     Body        = $body | ConvertTo-Json -Depth 10
                     Headers     = $headers
                 }
+                
                 $responseUpdateUser = Invoke-HR2DayRestMethod @splatParamsUpdate
+               
+            
             } else {
                 Write-Information "[DryRun] Update HR2Day-Update-Email account with accountReference: [$($actionContext.References.Account)], will be executed during enforcement"
             }
